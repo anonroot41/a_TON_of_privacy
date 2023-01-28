@@ -174,14 +174,17 @@ class Ton_retriever:
                     processnft = True
 
         if processnft:
+            first = True
             for nftff in self.nfts["data"]["nftItemsByOwner"]["items"]:
+                if not first:
+                    print("  |")
                 print("  ├  Address: %s" % (nftff["address"]))
                 print("  |  Name: %s, Kind: %s" % (nftff["name"], nftff["kind"]))
                 if "collection" in nftff.keys():
                     print("  |  Collection: %s" % (nftff["collection"]["name"]))
                 if "image" in nftff.keys():
                     print("  |  Url: %s" % (nftff["image"]["originalUrl"]))
-                print("  |")
+                first = False
             print("  └  ------------------------------------")
 
     def request_address_nft(self, addr):
