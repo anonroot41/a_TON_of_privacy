@@ -80,7 +80,6 @@ v 0.0.1
   |  Name: +888 XXXXXXX, Kind: CollectionItem
   |  Collection: Anonymous Telegram Numbers
   |  Url: https://nft.fragment.com/number/XXXXXX.webp
-  |
   └  ------------------------------------
 
 Process finished with exit code 0
