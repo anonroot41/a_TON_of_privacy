@@ -9,7 +9,7 @@ ATOP aims to give visibility into the addresses and details of the holders of th
 - Address of the owner
 - Scam status
 - Balance
-- Othe related NFT
+- Other related NFT
   
 ATOP supports:
 - TON DNS
