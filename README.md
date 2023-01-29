@@ -1,7 +1,7 @@
 # A TON of privacy
 ## ATOP - A tool for investigating TON network and its NFT.
 
-"A TON of Privacy" formally called ATOP ... is a tool for conducting OSINT investigations on TON NFTs.  
+"A TON of Privacy" formally called ATOP ... is a tool for conducting OSINT investigations on TON (Telegram 🙃) NFTs.  
   
 The TON network is increasingly integrated with the Telegram ecosystem, via NFT. Telegram allows people to purchase numbers, domains and nicknames through cryptocurrency.  
   
