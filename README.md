@@ -19,7 +19,7 @@ ATOP supports:
 ## INSTALLATION
 Install dependencies using pip and the file requirements.
 ```
-pip install -r requirments.txt
+pip install -r requirements.txt
 ```
 ### USAGE 
 Retrieve information about a:
