@@ -17,7 +17,7 @@ ATOP supports:
 - TON PHONE NUMBERS (+888)
 
 ## INSTALLATION
-Install dependencies using pip and the file requirments.
+Install dependencies using pip and the file requirements.
 ```
 pip install -r requirments.txt
 ```
@@ -35,7 +35,7 @@ python atop.py --target @telegram_nickname
 ```
 python atop.py --target atop.ton
 ```
-The OUTPUT will contains informations about the owner of the asset
+The OUTPUT will contain information about the owner of the asset.
 ```
 Welcome in the realm of.....
 
@@ -83,4 +83,10 @@ v 0.0.1
   └  ------------------------------------
 
 Process finished with exit code 0
+```
+The flag `-c` supports pivots and in depth analysis, ATM it helps to correlate TON domains to ENS domains, simply pivoting on the second-level domain.
+```
+ [+]  Details for domain ENS domain: xxx.eth
+  ├  Owner address:  0xd8da6bf26964af9d7eed9e03e53415d37aa96045
+  ├  Registration:  2020-02-06 19:23:40
 ```

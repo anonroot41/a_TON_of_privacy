@@ -72,6 +72,7 @@ class Ton_retriever:
     nfts = None
     type = ""
     kind = ""
+    ens_detail = None
 
     def __init__(self, _telephone_num, _comprehensive):
         self.comprehensive = _comprehensive
@@ -183,9 +184,37 @@ class Ton_retriever:
                 if "collection" in nftff.keys():
                     print("  |  Collection: %s" % (nftff["collection"]["name"]))
                 if "image" in nftff.keys():
-                    print("  |  Url: %s" % (nftff["image"]["originalUrl"]))
+                    if "originalUrl" in nftff["image"].keys():
+                        print("  |  Url: %s" % (nftff["image"]["originalUrl"]))
                 first = False
             print("  └  ------------------------------------")
+
+        if self.comprehensive and self.ens_detail:
+            if "data" in self.ens_detail.keys():
+                if "domains" in self.ens_detail["data"].keys():
+                    if len(self.ens_detail["data"]["domains"]) == 1:
+                        print(" [+] ", f"Details for {self.kind.lower()} ENS domain: " + self.ens_detail["data"]["domains"][0]["name"])
+                        print("  ├  Owner address: ", self.ens_detail["data"]["domains"][0]["owner"]["id"])
+                        date = datetime.fromtimestamp(int(self.ens_detail["data"]["domains"][0]["registration"]["registrationDate"]))
+                        print("  ├  Registration: ", date.strftime("%Y-%m-%d %H:%M:%S"))
+                        date = datetime.fromtimestamp(int(self.ens_detail["data"]["domains"][0]["registration"]["expiryDate"]))
+                        print("  ├  Expiry: ", date.strftime("%Y-%m-%d %H:%M:%S"))
+                        print("  └  ------------------------------------")
+
+
+    def pivot_ens(self):
+        ens_domain = self.target.split(".")[0]+".eth"
+        request_api = "https://api.thegraph.com/subgraphs/name/ensdomains/ens"
+        req_body = {
+            "query": "{  domains(where: {name: \"%s\"}) {    name    owner {      id      domains {        id        labelName        createdAt        parent {          labelName        }        resolver {          texts          address        }      }    }    registration {      registrationDate      expiryDate    }  }}"% ens_domain ,
+            "variables": {},
+        }
+        try:
+            res = requests.post(request_api, json=req_body, headers=self.header).text
+            self.ens_detail = json.loads(res)
+        except Exception as exx:
+            print("[-] AN ISSUE OCCURRED DURING RETRIEVING ENS INFO...")
+
 
     def request_address_nft(self, addr):
         request_api = "https://api.getgems.io/graphql"
@@ -233,10 +262,12 @@ class Ton_retriever:
                     exit(1)
 
             for element in obj["nft_items"]:
+
                 count += 1
                 search_field = ""
                 if "name" in element["metadata"].keys():
                     search_field = element["metadata"]["name"].replace(" ", "")
+
                     if self.kind == "NICKNAME":
                         search_field = "@" + element["metadata"]["name"]
 
@@ -256,6 +287,8 @@ class Ton_retriever:
                     self.request_address_nft(element["owner"]["address"])
                     self.stop_cycle = True
                     break
+
+
         except Exception as exx:
             print(
                 f" [-] THERE WAS SOME ISSUE DURING REQUESTING INFO ABOUT TON {self.kind} ..."
@@ -270,6 +303,10 @@ class Ton_retriever:
             current_finding = self.request_info()
             self.offset += current_finding
             time.sleep(gdelay())
+        if self.comprehensive:
+            if self.kind == "DOMAIN":
+                self.pivot_ens()
+
         if not self.address:
             print(f" [-] {self.kind} NOT FOUND, {self.offset} {self.kind} PROCESSED...")
         else:
@@ -286,6 +323,14 @@ if __name__ == "__main__":
         required=True,
         help="[?] TON number, nickname or domain to analyze ...",
     )
+
+    '''
+    if a flag comprehensive is True
+    a deep inspection will be done:
+    -  domain -> pivoting on ENS domain
+    -  nickname -> Telepathy check nickname details
+    -  telephone -> TBA? 
+    '''
     parser.add_argument(
         "-c",
         "--comprehensive",
@@ -294,6 +339,9 @@ if __name__ == "__main__":
         help="[?] Exhaustive research [work in progress] ...",
         action="store_true",
     )
+    '''
+    mandatory if you want to use Telepathy ??
+    '''
     parser.add_argument(
         "--apiid",
         required=False,
