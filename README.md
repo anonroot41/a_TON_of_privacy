@@ -86,7 +86,9 @@ Process finished with exit code 0
 ```
 The flag `-c` supports pivots and in depth analysis, ATM it helps to correlate TON domains to ENS domains, simply pivoting on the second-level domain.
 ```
- [+]  Details for domain ENS domain: xxx.eth
-  ├  Owner address:  0xd8da6bf26964af9d7eed9e03e53415d37aa96045
-  ├  Registration:  2020-02-06 19:23:40
+[+]  Details for domain ENS domain: xxxxxx.eth
+  ├  Owner address:  0xd8xxxxxxxxxxxxxxxxxxxxxxx
+  ├  Registration:  2020-xxxxxxxxxxxxxxxx
+  ├  Expiry:  2034-xxxxxxxxxxxxxxxxxxxxxx
+  └  ------------------------------------
 ```
