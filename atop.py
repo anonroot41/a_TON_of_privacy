@@ -149,7 +149,7 @@ class Ton_retriever:
         if self.comprehensive:
             print(
                 '''
-    ░▒████████████████████ TON ██████████████████████▒░                   
+  ░▒████████████████████ TON ██████████████████████▒░                   
                 '''
             )
         print(" [+] ", f"Details for {self.kind.lower()}: " + self.target)
