@@ -1,6 +1,6 @@
 from colorama import Fore, Style
 import requests
-import telethon
+
 import re
 import json
 import argparse
@@ -55,6 +55,8 @@ v 0.0.1 """
     )
 
 
+
+
 class Ton_retriever:
 
     step = 10000
@@ -80,7 +82,7 @@ class Ton_retriever:
             print("\n [!] WRONG INPUT FORMAT")
             return 1
         self.stop_cycle = False
-        self.refreshUA()
+        self.user_agent_retrieve()
         self.header = {"User-Agent": self.ua()}
         print(f"\n [!] START CRAWLING.... {self.kind}: {self.target} \n")
 
@@ -121,18 +123,17 @@ class Ton_retriever:
     def sleeping_time():
         time.sleep(gdelay(delays))
 
-    def refreshUA(self):
+    def user_agent_retrieve(self):
         try:
-            template = re.compile("<li><a[^>]*>([^<]*)<\/a><\/li>")
             for browser in ["chrome", "edge", "firefox", "safari", "opera"]:
                 with requests.get(
                     f"http://useragentstring.com/pages/useragentstring.php?name={browser}"
                 ) as response:
-                    temp = response.content.decode("utf-8")
+                    tt = response.content.decode("utf-8")
                     count = 10
-                    for item in template.findall(temp):
-                        if item not in self.user_agents:
-                            self.user_agents.append(item)
+                    for ua in re.findall(r"<li><a[^>]*>([^<]*)<\/a><\/li>",tt):
+                        if ua not in self.user_agents:
+                            self.user_agents.append(ua)
                         count -= 1
                         if count == 0:
                             break
@@ -145,7 +146,11 @@ class Ton_retriever:
     def print_info(self):
         balance = "N/A"
         last_date = datetime.min
-
+        print(
+            '''
+░▒████████████████████ TON ██████████████████████▒░                   
+            '''
+        )
         print(" [+] ", f"Details for {self.kind.lower()}: " + self.target)
         print("  ├  Owner address: ", str(self.address))
         print("  ├  Is scam: ", str(self.is_scam))
@@ -190,10 +195,15 @@ class Ton_retriever:
             print("  └  ------------------------------------")
 
         if self.comprehensive and self.ens_detail:
+            print(
+                '''
+  ░▒████████████████████ ETH ██████████████████████▒░                   
+                '''
+            )
             if "data" in self.ens_detail.keys():
                 if "domains" in self.ens_detail["data"].keys():
                     if len(self.ens_detail["data"]["domains"]) == 1:
-                        print(" [+] ", f"Details for {self.kind.lower()} ENS domain: " + self.ens_detail["data"]["domains"][0]["name"])
+                        print(" [+] ", f"Details for related {self.kind.lower()} ENS domain: " + self.ens_detail["data"]["domains"][0]["name"])
                         print("  ├  Owner address: ", self.ens_detail["data"]["domains"][0]["owner"]["id"])
                         date = datetime.fromtimestamp(int(self.ens_detail["data"]["domains"][0]["registration"]["registrationDate"]))
                         print("  ├  Registration: ", date.strftime("%Y-%m-%d %H:%M:%S"))
@@ -201,12 +211,43 @@ class Ton_retriever:
                         print("  ├  Expiry: ", date.strftime("%Y-%m-%d %H:%M:%S"))
                         print("  └  ------------------------------------")
 
+            first = True
+            for domain in self.ens_detail["data"]["domains"][0]["owner"]["domains"]:
+                if not first:
+                    print("  |")
+                else:
+                    addr = self.ens_detail["data"]["domains"][0]["owner"]["id"]
+                    print("\n [+] ", f"Domains related to the ETH address: {addr}" )
+                print("  ├  Address: %s" % (domain["id"]))
+                date = datetime.fromtimestamp(int(domain["createdAt"]))
+                print("  |  Name: %s, created at: %s" % (domain["name"], date.strftime("%Y-%m-%d %H:%M:%S")))
+                if domain["resolver"]:
+                    print("  |  Resolver: %s" % (domain["resolver"]["address"]))
+                current_ipfs = Ton_retriever.ipf_ens(domain["name"])
+                if current_ipfs != "":
+                    print("  |  IPFS root: %s" % current_ipfs)
+                first = False
+            print("  └  ------------------------------------")
+
+
+    @staticmethod
+    def ipf_ens(domain):
+        ipfs_url = ""
+        request_api = f"https://{domain}.limo"
+        try:
+            res = requests.get(request_api,timeout=5)
+            if res.status_code == 200:
+                ipfs_url = res.headers["X-Ipfs-Path"]
+        except Exception as exx:
+            pass
+        time.sleep(0.3)
+        return ipfs_url
 
     def pivot_ens(self):
         ens_domain = self.target.split(".")[0]+".eth"
         request_api = "https://api.thegraph.com/subgraphs/name/ensdomains/ens"
         req_body = {
-            "query": "{  domains(where: {name: \"%s\"}) {    name    owner {      id      domains {        id        labelName        createdAt        parent {          labelName        }        resolver {          texts          address        }      }    }    registration {      registrationDate      expiryDate    }  }}"% ens_domain ,
+            "query": "{  domains(where: {name: \"%s\"}) {    name    owner {      id      domains {        id        name        createdAt        parent {          labelName        }        resolver {          texts          address        }      }    }    registration {      registrationDate      expiryDate    }  }}"% ens_domain ,
             "variables": {},
         }
         try:
