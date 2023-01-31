@@ -146,11 +146,12 @@ class Ton_retriever:
     def print_info(self):
         balance = "N/A"
         last_date = datetime.min
-        print(
-            '''
-░▒████████████████████ TON ██████████████████████▒░                   
-            '''
-        )
+        if self.comprehensive:
+            print(
+                '''
+    ░▒████████████████████ TON ██████████████████████▒░                   
+                '''
+            )
         print(" [+] ", f"Details for {self.kind.lower()}: " + self.target)
         print("  ├  Owner address: ", str(self.address))
         print("  ├  Is scam: ", str(self.is_scam))
