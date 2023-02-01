@@ -25,7 +25,7 @@ Install via pip
 ```
 pip install atop
 ```
-### USAGE 
+## USAGE 
 If atop was installed as a **global package**: 
 ```
 a-ton-of-privacy --target "+888 12345678"
@@ -93,6 +93,7 @@ v 0.0.2
 
 Process finished with exit code 0
 ```
+## FLAGS 
 The flag `-c` supports pivots and in depth analysis, ATM it helps to correlate TON domains to ENS domains, simply pivoting on the second-level domain.
 ```
 [+]  Details for domain ENS domain: xxxxxx.eth
