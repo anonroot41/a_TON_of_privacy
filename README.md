@@ -26,11 +26,12 @@ Install via pip
 pip install atop
 ```
 ### USAGE 
-If atop was installed as a global package:
-``
+If atop was installed as a **global package**: 
+```
 a-ton-of-privacy --target "+888 12345678"
-``
-Retrieve information about a:
+```
+Retrieve information about a:  
+  
 - Telephone numbers
 ```
 python /src/atop/atop.py --target "+888 12345678"
