@@ -100,5 +100,5 @@ The flag `-c` supports pivots and in depth analysis, ATM it helps to correlate T
   ├  Expiry:  2034-xxxxxxxxxxxxxxxxxxxxxx
   └  ------------------------------------
 ```
-The flag `-t` enable SOCK5 proxy by tor.
+The flag `-t` enable a TOR SOCK5 proxy for each connection .
 
