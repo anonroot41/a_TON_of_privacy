@@ -50,11 +50,9 @@ Welcome in the realm of....."""
 ░░         ░░   ░  ▒ ░     ░░    ░   ▒   ░       ▒ ▒ ░░          
             ░      ░        ░        ░  ░░ ░     ░ ░             
                            ░             ░       ░ ░             
-v 0.0.1 """
+v 0.0.2 """
         + Style.RESET_ALL
     )
-
-
 
 
 class Ton_retriever:
@@ -62,6 +60,7 @@ class Ton_retriever:
     step = 10000
     offset = 0
     target = ""
+    tor_proxy = False
     # comprensive scan use Telethon api to retrieve info about users
     comprehensive = False
     currentua = ""
@@ -75,15 +74,52 @@ class Ton_retriever:
     type = ""
     kind = ""
     ens_detail = None
+    session = None
 
-    def __init__(self, _telephone_num, _comprehensive):
+    proxy = False
+    s_proto = "socks5"
+    s_proxy = "127.0.0.1"
+    s_port = "9050"
+
+    @staticmethod
+    def sleeping_time():
+        time.sleep(gdelay(delays))
+
+    @staticmethod
+    def ipf_ens(domain, session=None):
+        ipfs_url = ""
+        request_api = f"https://{domain}.limo"
+        try:
+            if not session:
+                res = requests.get(request_api, timeout=5)
+            else:
+                res = session.get(request_api, timeout=5)
+            if res.status_code == 200:
+                ipfs_url = res.headers["X-Ipfs-Path"]
+        except Exception as exx:
+            pass
+        time.sleep(0.3)
+        return ipfs_url
+
+    def get_session(self):
+        ## session stora i cookie
+        self.session = requests.session()
+        if self.proxy:
+            self.session.proxies = {
+                "http": f"{self.s_proto}://{self.s_proxy}:{self.s_port}",
+                "https": f"{self.s_proto}://{self.s_proxy}:{self.s_port}",
+            }
+            self.user_agent_retrieve(self)
+            self.session.headers = {"User-Agent": self.ua()}
+
+    def __init__(self, _telephone_num, _comprehensive, _tor):
         self.comprehensive = _comprehensive
         if not self.check_format(_telephone_num):
             print("\n [!] WRONG INPUT FORMAT")
             return 1
         self.stop_cycle = False
-        self.user_agent_retrieve()
-        self.header = {"User-Agent": self.ua()}
+        self.proxy = _tor
+        self.get_session()
         print(f"\n [!] START CRAWLING.... {self.kind}: {self.target} \n")
 
     """
@@ -119,19 +155,15 @@ class Ton_retriever:
             )
         return status
 
-    @staticmethod
-    def sleeping_time():
-        time.sleep(gdelay(delays))
-
     def user_agent_retrieve(self):
         try:
             for browser in ["chrome", "edge", "firefox", "safari", "opera"]:
-                with requests.get(
+                with self.session.get(
                     f"http://useragentstring.com/pages/useragentstring.php?name={browser}"
                 ) as response:
                     tt = response.content.decode("utf-8")
                     count = 10
-                    for ua in re.findall(r"<li><a[^>]*>([^<]*)<\/a><\/li>",tt):
+                    for ua in re.findall(r"<li><a[^>]*>([^<]*)<\/a><\/li>", tt):
                         if ua not in self.user_agents:
                             self.user_agents.append(ua)
                         count -= 1
@@ -148,9 +180,9 @@ class Ton_retriever:
         last_date = datetime.min
         if self.comprehensive:
             print(
-                '''
+                """
   ░▒████████████████████ TON ██████████████████████▒░                   
-                '''
+                """
             )
         print(" [+] ", f"Details for {self.kind.lower()}: " + self.target)
         print("  ├  Owner address: ", str(self.address))
@@ -197,18 +229,37 @@ class Ton_retriever:
 
         if self.comprehensive and self.ens_detail:
             print(
-                '''
+                """
   ░▒████████████████████ ETH ██████████████████████▒░                   
-                '''
+                """
             )
             if "data" in self.ens_detail.keys():
                 if "domains" in self.ens_detail["data"].keys():
                     if len(self.ens_detail["data"]["domains"]) == 1:
-                        print(" [+] ", f"Details for related {self.kind.lower()} ENS domain: " + self.ens_detail["data"]["domains"][0]["name"])
-                        print("  ├  Owner address: ", self.ens_detail["data"]["domains"][0]["owner"]["id"])
-                        date = datetime.fromtimestamp(int(self.ens_detail["data"]["domains"][0]["registration"]["registrationDate"]))
+                        print(
+                            " [+] ",
+                            f"Details for related {self.kind.lower()} ENS domain: "
+                            + self.ens_detail["data"]["domains"][0]["name"],
+                        )
+                        print(
+                            "  ├  Owner address: ",
+                            self.ens_detail["data"]["domains"][0]["owner"]["id"],
+                        )
+                        date = datetime.fromtimestamp(
+                            int(
+                                self.ens_detail["data"]["domains"][0]["registration"][
+                                    "registrationDate"
+                                ]
+                            )
+                        )
                         print("  ├  Registration: ", date.strftime("%Y-%m-%d %H:%M:%S"))
-                        date = datetime.fromtimestamp(int(self.ens_detail["data"]["domains"][0]["registration"]["expiryDate"]))
+                        date = datetime.fromtimestamp(
+                            int(
+                                self.ens_detail["data"]["domains"][0]["registration"][
+                                    "expiryDate"
+                                ]
+                            )
+                        )
                         print("  ├  Expiry: ", date.strftime("%Y-%m-%d %H:%M:%S"))
                         print("  └  ------------------------------------")
 
@@ -218,45 +269,36 @@ class Ton_retriever:
                     print("  |")
                 else:
                     addr = self.ens_detail["data"]["domains"][0]["owner"]["id"]
-                    print("\n [+] ", f"Domains related to the ETH address: {addr}" )
+                    print("\n [+] ", f"Domains related to the ETH address: {addr}")
                 print("  ├  Address: %s" % (domain["id"]))
                 date = datetime.fromtimestamp(int(domain["createdAt"]))
-                print("  |  Name: %s, created at: %s" % (domain["name"], date.strftime("%Y-%m-%d %H:%M:%S")))
+                print(
+                    "  |  Name: %s, created at: %s"
+                    % (domain["name"], date.strftime("%Y-%m-%d %H:%M:%S"))
+                )
                 if domain["resolver"]:
                     print("  |  Resolver: %s" % (domain["resolver"]["address"]))
-                current_ipfs = Ton_retriever.ipf_ens(domain["name"])
+                current_ipfs = Ton_retriever.ipf_ens(
+                    domain["name"], session=self.session
+                )
                 if current_ipfs != "":
                     print("  |  IPFS root: %s" % current_ipfs)
                 first = False
             print("  └  ------------------------------------")
 
-
-    @staticmethod
-    def ipf_ens(domain):
-        ipfs_url = ""
-        request_api = f"https://{domain}.limo"
-        try:
-            res = requests.get(request_api,timeout=5)
-            if res.status_code == 200:
-                ipfs_url = res.headers["X-Ipfs-Path"]
-        except Exception as exx:
-            pass
-        time.sleep(0.3)
-        return ipfs_url
-
     def pivot_ens(self):
-        ens_domain = self.target.split(".")[0]+".eth"
+        ens_domain = self.target.split(".")[0] + ".eth"
         request_api = "https://api.thegraph.com/subgraphs/name/ensdomains/ens"
         req_body = {
-            "query": "{  domains(where: {name: \"%s\"}) {    name    owner {      id      domains {        id        name        createdAt        parent {          labelName        }        resolver {          texts          address        }      }    }    registration {      registrationDate      expiryDate    }  }}"% ens_domain ,
+            "query": '{  domains(where: {name: "%s"}) {    name    owner {      id      domains {        id        name        createdAt        parent {          labelName        }        resolver {          texts          address        }      }    }    registration {      registrationDate      expiryDate    }  }}'
+            % ens_domain,
             "variables": {},
         }
         try:
-            res = requests.post(request_api, json=req_body, headers=self.header).text
+            res = self.session.post(request_api, json=req_body).text
             self.ens_detail = json.loads(res)
         except Exception as exx:
             print("[-] AN ISSUE OCCURRED DURING RETRIEVING ENS INFO...")
-
 
     def request_address_nft(self, addr):
         request_api = "https://api.getgems.io/graphql"
@@ -265,7 +307,7 @@ class Ton_retriever:
             "variables": {"first": 100, "ownerAddress": addr},
         }
         try:
-            res = requests.post(request_api, json=req_body, headers=self.header).text
+            res = self.session.post(request_api, json=req_body).text
             self.nfts = json.loads(res)
         except Exception as exx:
             print("[-] AN ISSUE OCCURRED DURING RETRIEVING NFT INFO...")
@@ -276,7 +318,7 @@ class Ton_retriever:
             "https://api.ton.cat/v2/explorer/getWalletInformation?address=0%3A" + c_addr
         )
         try:
-            res = requests.get(request_api, headers=self.header).text
+            res = self.session.get(request_api).text
             self.info = json.loads(res)
         except Exception as exx:
             print(" [-] AN ISSUE OCCURRED DURING RETRIEVING ADDRESS INFO...")
@@ -285,7 +327,7 @@ class Ton_retriever:
         c_addr = addr.split(":")[1]
         request_api = f"https://toncenter.com/api/index/getTransactionsByAddress?address=0%3A{c_addr}&limit=20&offset=0&include_msg_body=true"
         try:
-            res = requests.get(request_api, headers=self.header).text
+            res = self.session.get(request_api).text
             self.transactions = json.loads(res)
         except Exception as exx:
             print(" [-] AN ISSUE OCCURRED DURING RETRIEVING TRANSACTIONS INFO...")
@@ -294,7 +336,7 @@ class Ton_retriever:
         count = 0
         request_api = f"https://tonapi.io/v1/nft/searchItems?collection=0%3A{self.type}&include_on_sale=false&limit={self.step}&offset={self.offset}"
         try:
-            res = requests.get(request_api, headers=self.header).text
+            res = self.session.get(request_api).text
             obj = json.loads(res)
             if "message" in obj.keys():
                 if obj["message"] == "rate limit exceeded":
@@ -330,7 +372,6 @@ class Ton_retriever:
                     self.stop_cycle = True
                     break
 
-
         except Exception as exx:
             print(
                 f" [-] THERE WAS SOME ISSUE DURING REQUESTING INFO ABOUT TON {self.kind} ..."
@@ -355,46 +396,61 @@ class Ton_retriever:
             self.print_info()
 
 
-if __name__ == "__main__":
-
+def run():
     parser = argparse.ArgumentParser(
         description="Launch me, and u'll receive a TON of privacy..."
     )
     parser.add_argument(
         "--target",
         required=True,
-        help="[?] TON number, nickname or domain to analyze ...",
+        help=" [?] TON number, nickname or domain to analyze ...",
     )
 
-    '''
+    """
     if a flag comprehensive is True
     a deep inspection will be done:
     -  domain -> pivoting on ENS domain
     -  nickname -> Telepathy check nickname details
     -  telephone -> TBA? 
-    '''
+    """
     parser.add_argument(
         "-c",
         "--comprehensive",
         required=False,
         default=False,
-        help="[?] Exhaustive research [work in progress] ...",
+        help=" [?] Exhaustive research [work in progress] ...",
         action="store_true",
     )
-    '''
+    parser.add_argument(
+        "-t",
+        "--tor",
+        required=False,
+        default=False,
+        help=" [?] Use TOR as SOCK5 proxy ...",
+        action="store_true",
+    )
+    """
     mandatory if you want to use Telepathy ??
-    '''
+    """
     parser.add_argument(
         "--apiid",
         required=False,
-        help="[?] Exhaustive research [work in progress] ...",
+        help=" [?] Exhaustive research [work in progress] ...",
     )
     parser.add_argument(
         "--apihash",
         required=False,
-        help="[?] Exhaustive research [work in progress] ...",
+        help=" [?] Exhaustive research [work in progress] ...",
     )
-    print_banner()
-    args = parser.parse_args()
-    ton_ret = Ton_retriever(args.target, args.comprehensive)
-    ton_ret.start_searching()
+    try:
+        print_banner()
+        args = parser.parse_args()
+        ton_ret = Ton_retriever(args.target, args.comprehensive, args.tor)
+        ton_ret.start_searching()
+    except KeyboardInterrupt:
+        print("[-] ATOP was killed ...")
+        exit(1)
+
+
+if __name__ == "__main__":
+    run()

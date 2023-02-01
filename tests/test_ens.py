@@ -1,5 +1,5 @@
 import pytest
-from atop import Ton_retriever
+from src.atop.atop import Ton_retriever
 
 @pytest.fixture
 def domains_ens_test():

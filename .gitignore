@@ -1,4 +1,7 @@
 .idea/
 venv/
-*_ff.*
+dist/
 *23*/
+*egg-info/
+
+*_ff.*

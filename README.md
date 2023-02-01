@@ -1,4 +1,4 @@
-# A TON of privacy
+# A TON of privacy v0.0.2
 ## ATOP - A tool for investigating TON network and its NFT.
 
 "A TON of Privacy" formally called ATOP ... is a tool for conducting OSINT investigations on TON (Telegram 🙃) NFTs.  
@@ -21,19 +21,27 @@ Install dependencies using pip and the file requirements.
 ```
 pip install -r requirements.txt
 ```
+Install via pip
+```
+pip install atop
+```
 ### USAGE 
+If atop was installed as a global package:
+``
+a-ton-of-privacy --target "+888 12345678"
+``
 Retrieve information about a:
 - Telephone numbers
 ```
-python atop.py --target +888 12345678
+python /src/atop/atop.py --target "+888 12345678"
 ```
 - Nickname 
 ```
-python atop.py --target @telegram_nickname
+python /src/atop/atop.py --target @telegram_nickname
 ```
 - Domain 
 ```
-python atop.py --target atop.ton
+python /src/atop/atop.py --target atop.ton
 ```
 The OUTPUT will contain information about the owner of the asset.
 ```
@@ -59,7 +67,7 @@ Welcome in the realm of.....
 ░░         ░░   ░  ▒ ░     ░░    ░   ▒   ░       ▒ ▒ ░░          
             ░      ░        ░        ░  ░░ ░     ░ ░             
                            ░             ░       ░ ░             
-v 0.0.1 
+v 0.0.2 
 
  [!] START CRAWLING.... NUMBER: +888XXXXXXXXXXXX
 
@@ -92,3 +100,5 @@ The flag `-c` supports pivots and in depth analysis, ATM it helps to correlate T
   ├  Expiry:  2034-xxxxxxxxxxxxxxxxxxxxxx
   └  ------------------------------------
 ```
+The flag `-t` enable SOCK5 proxy by tor.
+
