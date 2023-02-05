@@ -19,29 +19,30 @@ ATOP supports:
 ## INSTALLATION
 Install dependencies using pip and the file requirements.
 ```
-pip install -r requirements.txt
+$ pip install -r requirements.txt
 ```
 Install via pip
 ```
-pip install atop
+$ pip install atop
 ```
-### USAGE 
-If atop was installed as a global package:
-``
-a-ton-of-privacy --target "+888 12345678"
-``
-Retrieve information about a:
+## USAGE 
+If atop was installed as a **global package**: 
+```
+$ a-ton-of-privacy --target "+888 12345678"
+```
+Retrieve information about a:  
+  
 - Telephone numbers
 ```
-python /src/atop/atop.py --target "+888 12345678"
+$ python3 /src/atop/atop.py --target "+888 12345678"
 ```
 - Nickname 
 ```
-python /src/atop/atop.py --target @telegram_nickname
+$ python /src/atop/atop.py --target @telegram_nickname
 ```
 - Domain 
 ```
-python /src/atop/atop.py --target atop.ton
+$ python /src/atop/atop.py --target atop.ton
 ```
 The OUTPUT will contain information about the owner of the asset.
 ```
@@ -92,6 +93,7 @@ v 0.0.2
 
 Process finished with exit code 0
 ```
+## FLAGS 
 The flag `-c` supports pivots and in depth analysis, ATM it helps to correlate TON domains to ENS domains, simply pivoting on the second-level domain.
 ```
 [+]  Details for domain ENS domain: xxxxxx.eth
@@ -100,5 +102,5 @@ The flag `-c` supports pivots and in depth analysis, ATM it helps to correlate T
   ├  Expiry:  2034-xxxxxxxxxxxxxxxxxxxxxx
   └  ------------------------------------
 ```
-The flag `-t` enable SOCK5 proxy by tor.
+The flag `-t` enable a TOR SOCK5 proxy for each connection.
 
