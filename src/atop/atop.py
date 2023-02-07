@@ -176,115 +176,121 @@ class Ton_retriever:
         return random.choice(self.user_agents)
 
     def print_info(self):
-        balance = "N/A"
-        last_date = datetime.min
-        if self.comprehensive:
-            print(
-                """
-  ░▒████████████████████ TON ██████████████████████▒░                   
-                """
-            )
-        print(" [+] ", f"Details for {self.kind.lower()}: " + self.target)
-        print("  ├  Owner address: ", str(self.address))
-        print("  ├  Is scam: ", str(self.is_scam))
-        if self.owner_name != "":
-            print("  ├  Owner name: ", str(self.owner_name))
 
-        if self.info:
-            if "result" in self.info.keys():
-                balance = str(int(self.info["result"]["balance"]) / 1000000000)
+        if not self.address:
+            print(f" [-] {self.kind} NOT FOUND, {self.offset} {self.kind} PROCESSED...")
+            return
+        else:
 
-        if self.transactions and len(self.transactions):
-            last_date = datetime.fromtimestamp(self.transactions[0]["utime"])
+            balance = "N/A"
+            last_date = datetime.min
+            if self.comprehensive:
+                print(
+                    """
+      ░▒████████████████████ TON ██████████████████████▒░                   
+                    """
+                )
+            print(" [+] ", f"Details for {self.kind.lower()}: " + self.target)
+            print("  ├  Owner address: ", str(self.address))
+            print("  ├  Is scam: ", str(self.is_scam))
+            if self.owner_name != "":
+                print("  ├  Owner name: ", str(self.owner_name))
 
-        print("  ├  Last activity: ", last_date.strftime("%Y-%m-%d %H:%M:%S"))
-        print("  ├  Balance: ", str(balance))
-        print("  └  ------------------------------------\n")
+            if self.info:
+                if "result" in self.info.keys():
+                    balance = str(int(self.info["result"]["balance"]) / 1000000000)
 
-        processnft = False
-        if self.nfts:
-            if "data" in self.nfts.keys():
-                if "nftItemsByOwner" in self.nfts["data"].keys():
-                    print(
-                        " [+] ",
-                        "NFTs found: %s"
-                        % len(self.nfts["data"]["nftItemsByOwner"]["items"]),
-                    )
-                    processnft = True
+            if self.transactions and len(self.transactions):
+                last_date = datetime.fromtimestamp(self.transactions[0]["utime"])
 
-        if processnft:
-            first = True
-            for nftff in self.nfts["data"]["nftItemsByOwner"]["items"]:
-                if not first:
-                    print("  |")
-                print("  ├  Address: %s" % (nftff["address"]))
-                print("  |  Name: %s, Kind: %s" % (nftff["name"], nftff["kind"]))
-                if "collection" in nftff.keys():
-                    print("  |  Collection: %s" % (nftff["collection"]["name"]))
-                if "image" in nftff.keys():
-                    if "originalUrl" in nftff["image"].keys():
-                        print("  |  Url: %s" % (nftff["image"]["originalUrl"]))
-                first = False
-            print("  └  ------------------------------------")
+            print("  ├  Last activity: ", last_date.strftime("%Y-%m-%d %H:%M:%S"))
+            print("  ├  Balance: ", str(balance))
+            print("  └  ------------------------------------\n")
 
-        if self.comprehensive and self.ens_detail:
-            print(
-                """
-  ░▒████████████████████ ETH ██████████████████████▒░                   
-                """
-            )
-            if "data" in self.ens_detail.keys():
-                if "domains" in self.ens_detail["data"].keys():
-                    if len(self.ens_detail["data"]["domains"]) == 1:
+            processnft = False
+            if self.nfts:
+                if "data" in self.nfts.keys():
+                    if "nftItemsByOwner" in self.nfts["data"].keys():
                         print(
                             " [+] ",
-                            f"Details for related {self.kind.lower()} ENS domain: "
-                            + self.ens_detail["data"]["domains"][0]["name"],
+                            "NFTs found: %s"
+                            % len(self.nfts["data"]["nftItemsByOwner"]["items"]),
                         )
-                        print(
-                            "  ├  Owner address: ",
-                            self.ens_detail["data"]["domains"][0]["owner"]["id"],
-                        )
-                        date = datetime.fromtimestamp(
-                            int(
-                                self.ens_detail["data"]["domains"][0]["registration"][
-                                    "registrationDate"
-                                ]
-                            )
-                        )
-                        print("  ├  Registration: ", date.strftime("%Y-%m-%d %H:%M:%S"))
-                        date = datetime.fromtimestamp(
-                            int(
-                                self.ens_detail["data"]["domains"][0]["registration"][
-                                    "expiryDate"
-                                ]
-                            )
-                        )
-                        print("  ├  Expiry: ", date.strftime("%Y-%m-%d %H:%M:%S"))
-                        print("  └  ------------------------------------")
+                        processnft = True
 
-            first = True
-            for domain in self.ens_detail["data"]["domains"][0]["owner"]["domains"]:
-                if not first:
-                    print("  |")
-                else:
-                    addr = self.ens_detail["data"]["domains"][0]["owner"]["id"]
-                    print("\n [+] ", f"Domains related to the ETH address: {addr}")
-                print("  ├  Address: %s" % (domain["id"]))
-                date = datetime.fromtimestamp(int(domain["createdAt"]))
+            if processnft:
+                first = True
+                for nftff in self.nfts["data"]["nftItemsByOwner"]["items"]:
+                    if not first:
+                        print("  |")
+                    print("  ├  Address: %s" % (nftff["address"]))
+                    print("  |  Name: %s, Kind: %s" % (nftff["name"], nftff["kind"]))
+                    if "collection" in nftff.keys():
+                        print("  |  Collection: %s" % (nftff["collection"]["name"]))
+                    if "image" in nftff.keys():
+                        if "originalUrl" in nftff["image"].keys():
+                            print("  |  Url: %s" % (nftff["image"]["originalUrl"]))
+                    first = False
+                print("  └  ------------------------------------")
+
+            if self.comprehensive and self.ens_detail:
                 print(
-                    "  |  Name: %s, created at: %s"
-                    % (domain["name"], date.strftime("%Y-%m-%d %H:%M:%S"))
+                    """
+      ░▒████████████████████ ETH ██████████████████████▒░                   
+                    """
                 )
-                if domain["resolver"]:
-                    print("  |  Resolver: %s" % (domain["resolver"]["address"]))
-                current_ipfs = Ton_retriever.ipf_ens(
-                    domain["name"], session=self.session
-                )
-                if current_ipfs != "":
-                    print("  |  IPFS root: %s" % current_ipfs)
-                first = False
-            print("  └  ------------------------------------")
+                if "data" in self.ens_detail.keys():
+                    if "domains" in self.ens_detail["data"].keys():
+                        if len(self.ens_detail["data"]["domains"]) == 1:
+                            print(
+                                " [+] ",
+                                f"Details for related {self.kind.lower()} ENS domain: "
+                                + self.ens_detail["data"]["domains"][0]["name"],
+                            )
+                            print(
+                                "  ├  Owner address: ",
+                                self.ens_detail["data"]["domains"][0]["owner"]["id"],
+                            )
+                            date = datetime.fromtimestamp(
+                                int(
+                                    self.ens_detail["data"]["domains"][0]["registration"][
+                                        "registrationDate"
+                                    ]
+                                )
+                            )
+                            print("  ├  Registration: ", date.strftime("%Y-%m-%d %H:%M:%S"))
+                            date = datetime.fromtimestamp(
+                                int(
+                                    self.ens_detail["data"]["domains"][0]["registration"][
+                                        "expiryDate"
+                                    ]
+                                )
+                            )
+                            print("  ├  Expiry: ", date.strftime("%Y-%m-%d %H:%M:%S"))
+                            print("  └  ------------------------------------")
+
+                first = True
+                for domain in self.ens_detail["data"]["domains"][0]["owner"]["domains"]:
+                    if not first:
+                        print("  |")
+                    else:
+                        addr = self.ens_detail["data"]["domains"][0]["owner"]["id"]
+                        print("\n [+] ", f"Domains related to the ETH address: {addr}")
+                    print("  ├  Address: %s" % (domain["id"]))
+                    date = datetime.fromtimestamp(int(domain["createdAt"]))
+                    print(
+                        "  |  Name: %s, created at: %s"
+                        % (domain["name"], date.strftime("%Y-%m-%d %H:%M:%S"))
+                    )
+                    if domain["resolver"]:
+                        print("  |  Resolver: %s" % (domain["resolver"]["address"]))
+                    current_ipfs = Ton_retriever.ipf_ens(
+                        domain["name"], session=self.session
+                    )
+                    if current_ipfs != "":
+                        print("  |  IPFS root: %s" % current_ipfs)
+                    first = False
+                print("  └  ------------------------------------")
 
     def pivot_ens(self):
         ens_domain = self.target.split(".")[0] + ".eth"
@@ -390,10 +396,7 @@ class Ton_retriever:
             if self.kind == "DOMAIN":
                 self.pivot_ens()
 
-        if not self.address:
-            print(f" [-] {self.kind} NOT FOUND, {self.offset} {self.kind} PROCESSED...")
-        else:
-            self.print_info()
+
 
 
 def run():
@@ -447,6 +450,9 @@ def run():
         args = parser.parse_args()
         ton_ret = Ton_retriever(args.target, args.comprehensive, args.tor)
         ton_ret.start_searching()
+        ton_ret.print_info()
+
+
     except KeyboardInterrupt:
         print("[-] ATOP was killed ...")
         exit(1)
