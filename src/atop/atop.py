@@ -18,7 +18,6 @@ uapools = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.79",
 ]
 
-
 def gdelay():
     return random.choice(delays)
 
@@ -57,6 +56,7 @@ v 0.0.2 """
 
 class Ton_retriever:
 
+    silent = False
     step = 10000
     offset = 0
     target = ""
@@ -112,15 +112,18 @@ class Ton_retriever:
             self.user_agent_retrieve(self)
             self.session.headers = {"User-Agent": self.ua()}
 
-    def __init__(self, _telephone_num, _comprehensive, _tor):
+    def __init__(self, _telephone_num, _comprehensive, _tor, _silent):
         self.comprehensive = _comprehensive
         if not self.check_format(_telephone_num):
-            print("\n [!] WRONG INPUT FORMAT")
+            if not self.silent:
+                print("\n [!] WRONG INPUT FORMAT")
             return 1
         self.stop_cycle = False
         self.proxy = _tor
+        self.silent = _silent
         self.get_session()
-        print(f"\n [!] START CRAWLING.... {self.kind}: {self.target} \n")
+        if not self.silent:
+            print(f"\n [!] START CRAWLING.... {self.kind}: {self.target} \n")
 
     """
         TON DNS 0:b774d95eb20543f186c06b371ab88ad704f7e256130caf96189368a7d0cb6ccf
@@ -176,7 +179,6 @@ class Ton_retriever:
         return random.choice(self.user_agents)
 
     def print_info(self):
-
         if not self.address:
             print(f" [-] {self.kind} NOT FOUND, {self.offset} {self.kind} PROCESSED...")
             return
@@ -304,7 +306,9 @@ class Ton_retriever:
             res = self.session.post(request_api, json=req_body).text
             self.ens_detail = json.loads(res)
         except Exception as exx:
-            print("[-] AN ISSUE OCCURRED DURING RETRIEVING ENS INFO...")
+            if not self.silent:
+                print("[-] AN ISSUE OCCURRED DURING RETRIEVING ENS INFO...")
+            exit(1)
 
     def request_address_nft(self, addr):
         request_api = "https://api.getgems.io/graphql"
@@ -316,7 +320,9 @@ class Ton_retriever:
             res = self.session.post(request_api, json=req_body).text
             self.nfts = json.loads(res)
         except Exception as exx:
-            print("[-] AN ISSUE OCCURRED DURING RETRIEVING NFT INFO...")
+            if not self.silent:
+                print("[-] AN ISSUE OCCURRED DURING RETRIEVING NFT INFO...")
+            exit(1)
 
     def request_address_info(self, addr):
         c_addr = addr.split(":")[1]
@@ -327,7 +333,9 @@ class Ton_retriever:
             res = self.session.get(request_api).text
             self.info = json.loads(res)
         except Exception as exx:
-            print(" [-] AN ISSUE OCCURRED DURING RETRIEVING ADDRESS INFO...")
+            if not self.silent:
+                print(" [-] AN ISSUE OCCURRED DURING RETRIEVING ADDRESS INFO...")
+            exit(1)
 
     def request_address_transctions(self, addr):
         c_addr = addr.split(":")[1]
@@ -336,7 +344,9 @@ class Ton_retriever:
             res = self.session.get(request_api).text
             self.transactions = json.loads(res)
         except Exception as exx:
-            print(" [-] AN ISSUE OCCURRED DURING RETRIEVING TRANSACTIONS INFO...")
+            if not self.silent:
+                print(" [-] AN ISSUE OCCURRED DURING RETRIEVING TRANSACTIONS INFO...")
+            exit(1)
 
     def request_info(self):
         count = 0
@@ -379,9 +389,10 @@ class Ton_retriever:
                     break
 
         except Exception as exx:
-            print(
-                f" [-] THERE WAS SOME ISSUE DURING REQUESTING INFO ABOUT TON {self.kind} ..."
-            )
+            if not self.silent:
+                print(
+                    f" [-] THERE WAS SOME ISSUE DURING REQUESTING INFO ABOUT TON {self.kind} ..."
+                )
             exit(1)
         return count
 
@@ -432,6 +443,14 @@ def run():
         help=" [?] Use TOR as SOCK5 proxy ...",
         action="store_true",
     )
+    parser.add_argument(
+        "-s",
+        "--silent",
+        required=False,
+        default=False,
+        help=" [?] Use TOR as SOCK5 proxy ...",
+        action="store_true",
+    )
     """
     mandatory if you want to use Telepathy ??
     """
@@ -448,10 +467,10 @@ def run():
     try:
         print_banner()
         args = parser.parse_args()
-        ton_ret = Ton_retriever(args.target, args.comprehensive, args.tor)
+        ton_ret = Ton_retriever(args.target, args.comprehensive, args.tor, args.silent)
         ton_ret.start_searching()
-        ton_ret.print_info()
-
+        if not args.silent:
+            ton_ret.print_info()
 
     except KeyboardInterrupt:
         print("[-] ATOP was killed ...")

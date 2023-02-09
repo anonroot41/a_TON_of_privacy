@@ -5,7 +5,7 @@ from setuptools import (
 
 setup(
     name="atop",
-    version="0.0.2-7",
+    version="0.0.2-8",
     author="Aaarghhh",
     author_email="giacomo@udontneed.it",
     packages=["atop"],
